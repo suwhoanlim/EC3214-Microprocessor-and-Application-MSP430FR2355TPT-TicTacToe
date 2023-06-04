@@ -4,8 +4,14 @@
  * Global variables
  */
 
-int ADC_Value1 = 0;
+int ADC_Value1 = 0; // remove if doesn't seem neccessary
 int ADC_Value2 = 0;
+int running_status = 0; // for which led to light up
+int player1_turn_end = 0;
+int player2_turn_end = 0;
+int whoseturn = 0; // 1 for p2's turn, 0 for p1's turn
+int on_led = 0;
+
 
 
 /*
@@ -16,8 +22,8 @@ void init_board_pins(); // init tictactoe led pins
 void init_analogue_sensor(); // init potentiometer
 void init_dc_motor(); // init dc motor
 void init_timer(); // init timer
-void reset_everything(); // used for reset button
-void determine_winner(); // used for timeout, or when the game is a tie, or when someone wins.
+void reset_everything(); // used for reset button, impelemented on interrupt?
+void determine_winner(); // used for timeout, or when the game is a tie, or when someone wins, implemented on timer?
 // TODO: MORE FUNCTIONS TO COME
 
 /**
@@ -123,6 +129,10 @@ void init_board_pins(){
     P4DIR |= BIT4;
     P4DIR |= BIT5;
 
+    P3DIR |= BIT5; // player1
+    P3DIR |= BIT6; // Player2
+
+
 }
 void init_analogue_sensor(){
     /*
@@ -167,51 +177,190 @@ void determine_winner(){
 
 #pragma vector = PORT4_VECTOR
 __interrupt void ISR_player_switch_pressed() {
+
+
     // P4.6 = Player1,  P4.7 = Player2 switch input
-    int A1, A2;
 
     if(P4IFG & BIT6) { // switch pressed by player 1
-        ADCMCTL0 |= ADCINCH_5; // ADC input channel = A5(P1.5)
+        if(running_status == 0) {
+            running_status = 1;
+            /* TODO
+             * implement starting timer code here
+             */
+
+            P3OUT &= ~BIT6;
+            P3OUT |= BIT5; // turn on scoreboard
+            P4IFG &= ~BIT6; // reset flag
+            whoseturn = 0;
+            return;
+        }
+        ADCMCTL0 |= ADCINCH_4; // ADC input channel = A4(P1.4)
 
         ADCCTL0 |= ADCENC | ADCSC; // enable and start
         while((ADCIFG & ADCIFG0) == 0); // wait until ADC conversion ends
         ADC_Value1 = ADCMEM0; // save the value into ADC_val
 
-        ADCMCTL0 |= ADCINCH_6; // ADC input channel = A5(P1.5)
+        ADCMCTL0 |= ADCINCH_5; // ADC input channel = A5(P1.5)
 
         ADCCTL0 |= ADCENC | ADCSC; // enable and start
         while((ADCIFG & ADCIFG0) == 0); // wait until ADC conversion ends
         ADC_Value2 = ADCMEM0; // save the value into ADC_val
 
-        if(ADC_Value1 < 1365) { // is this conversion really neccessary? can't we just skip and use ADC_Value?
-            A1 = 0;
+        /*
+         * turn corresponding LED on
+         */
+        if(ADC_Value1 < 1365 && ADC_Value2 < 1365) {
+            P6OUT |= BIT0;
         }
-        else if(1365 <= ADC_Value1  && ADC_Value1 < 2730) {
-            A1 = 1;
+        else if(ADC_Value1 < 1365 && (1365 <= ADC_Value2  && ADC_Value2 < 2730)) {
+            P6OUT |= BIT2;
         }
-        else {
-            A1 = 2;
+        else if(ADC_Value1 < 1365 && 2730 <= ADC_Value2) {
+            P6OUT |= BIT4;
         }
-
-        if(ADC_Value2 < 1365) {
-            A2 = 0;
+        else if((1365 <= ADC_Value1 && ADC_Value1 < 2730) && ADC_Value2 < 1365) {
+            P6OUT |= BIT6;
         }
-        else if(1365 <= ADC_Value2  && ADC_Value2 < 2730) {
-            A2 = 1;
+        else if((1365 <= ADC_Value1 && ADC_Value1 < 2730) && (1365 <= ADC_Value2 && ADC_Value2 < 2730)) {
+            P5OUT |= BIT1;
         }
-        else {
-            A2 = 2;
+        else if((1365 <= ADC_Value1  && ADC_Value1 < 2730) && (2730 <= ADC_Value2)) {
+            P5OUT |= BIT3;
         }
-
+        else if(2730 <= ADC_Value1 && ADC_Value2 < 1365) {
+            P4OUT |= BIT0;
+        }
+        else if(2730 <= ADC_Value1 && (1365 <= ADC_Value2  && ADC_Value2 < 2730)) {
+            P4OUT |= BIT2;
+        }
+        else if(2730 <= ADC_Value1 && (2730 <= ADC_Value2)) {
+            P4OUT |= BIT5;
+        }
+        player1_turn_end = 1;
+        whoseturn = 1;
         P4IFG &= ~BIT6; // reset flag
+        on_led++;
+    }
+    else if(P4IFG & BIT7) { // interrupt by plyer2
+        if(running_status == 0) {
+            running_status = 1;
+            /* TODO
+             * implement starting timer code here
+             */
+            P3OUT &= ~BIT5;
+            P3OUT |= BIT6; // turn on scoreboard
+            P4IFG &= ~BIT7; // reset flag
+            whoseturn = 1;
+            return;
+        }
+        ADCMCTL0 |= ADCINCH_6; // ADC input channel = A6(P1.6)
+
+        ADCCTL0 |= ADCENC | ADCSC; // enable and start
+        while((ADCIFG & ADCIFG0) == 0); // wait until ADC conversion ends
+        ADC_Value1 = ADCMEM0; // save the value into ADC_val
+
+        ADCMCTL0 |= ADCINCH_7; // ADC input channel = A7(P1.7)
+
+        ADCCTL0 |= ADCENC | ADCSC; // enable and start
+        while((ADCIFG & ADCIFG0) == 0); // wait until ADC conversion ends
+        ADC_Value2 = ADCMEM0; // save the value into ADC_val
+
+        /*
+         * turn corresponding LED on
+         */
+        if(ADC_Value1 < 1365 && ADC_Value2 < 1365) {
+            P6OUT |= BIT1;
+        }
+        else if(ADC_Value1 < 1365 && (1365 <= ADC_Value2  && ADC_Value2 < 2730)) {
+            P6OUT |= BIT3;
+        }
+        else if(ADC_Value1 < 1365 && (2730 <= ADC_Value2)) {
+            P6OUT |= BIT5;
+        }
+        else if((1365 <= ADC_Value1  && ADC_Value1 < 2730) && ADC_Value2 < 1365) {
+            P5OUT |= BIT0;
+        }
+        else if((1365 <= ADC_Value1  && ADC_Value1 < 2730) && (1365 <= ADC_Value2  && ADC_Value2 < 2730)) {
+            P5OUT |= BIT2;
+        }
+        else if((1365 <= ADC_Value1  && ADC_Value1 < 2730) && (2730 <= ADC_Value2)) {
+            P5OUT |= BIT4;
+        }
+        else if(2730 <= ADC_Value1 && ADC_Value2 < 1365) {
+            P4OUT |= BIT1;
+        }
+        else if(2730 <= ADC_Value1 && (1365 <= ADC_Value2  && ADC_Value2 < 2730)) {
+            P4OUT |= BIT3;
+        }
+        else if(2730 <= ADC_Value1 && (2730 <= ADC_Value2)) {
+            P4OUT |= BIT5;
+        }
+        player2_turn_end = 1;
+        whoseturn = 0;
+        P4IFG &= ~BIT7; // reset flag
+        on_led++;
     }
 }
 
 #pragma vector = PORT3_VECTOR
 __interrupt void ISR_reset_switch_pressed() {
-    ADCMCTL0 |= ADCINCH_5; // ADC input channel = A5(P1.5)
+    /*
+     * reset switch
+    * - halt timer by mc = 0, clear timer TBCLR & &T0BCLR
+    * - turn off the leds in tictactoe board, clears the led for whose turn
+*/
+    running_status = 0;
+    TB0CTL |= MC__STOP; // stop timer
+    TB0CTL |= TBCLR; // clear timer and dividers
 
-    ADCCTL0 |= ADCENC | ADCSC; // enable and start
-    while((ADCIFG & ADCIFG0) == 0); // wait until ADC conversion ends
-    ADC_Value = ADCMEM0; // save the value into ADC_val
+    /* Turn off LEDs */
+    int i = 0;
+    int bit;
+    for(i = 6; i >= 0; i--) {
+        bit = 1 << i;
+        P6OUT &= ~bit; // turn off LED
+    }
+    for(i = 4; i >= 0; i--) {
+        bit = 1 << i;
+        P5OUT &= ~bit; // turn off LED
+    }
+    for(i = 5; i >= 0; i--) {
+        bit = 1 << i;
+        P4OUT &= ~bit; // turn off LED
+    }
+    whoseturn = -1;
+    player1_turn_end = -1;
+    player2_turn_end = -1;
+    on_led = 0;
+    //TODO turn on both LED on scoreboard?
+
+    /* Clear interrupt flags */
+    TB0CTL &= ~TBIFG;
+    P4IFG &= ~BIT6;
+    P4IFG &= ~BIT7;
+}
+
+#pragma vector = TIMER0_B0_VECTOR
+__interrupt void ISR_TB0_CCR0() {
+    /*
+     * TODO
+     * implement determine_winner here
+     * 1. p1 win because of p2 timeout
+     * 2. p2 win because of p1 timeout
+     * 3. p1 win because made 3 crossing (check condition: 8)
+     * 4. p2 win because made 3 crossing
+     * 5. tie because no crossing was made
+     */
+    if(whoseturn==0 && player1_turn_end != 1) {
+        //player 2 wins
+    }
+    else if(whoseturn==1 && player2_turn_end != 1) {
+        //player 1 wins
+    }
+    else if(on_led == 9) {
+        //tie
+        on_led = 0;
+    }
+
+    TB0CCTL0 &= ~CCIFG; // clear ccr0 flag
 }
