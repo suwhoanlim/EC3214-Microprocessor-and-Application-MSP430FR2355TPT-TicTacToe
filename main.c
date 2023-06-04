@@ -4,7 +4,9 @@
  * Global variables
  */
 
-int ADC_Value = 0;
+int ADC_Value1 = 0;
+int ADC_Value2 = 0;
+
 
 /*
  * functions
@@ -123,6 +125,11 @@ void init_board_pins(){
 
 }
 void init_analogue_sensor(){
+    /*
+     * P1.4, P1.5 for player1
+     * P1.6, P1.7 for player2
+     */
+
     P1SEL1 |= BIT4; // Configure P1.4 for A4
     P1SEL0 |= BIT4;
 
@@ -161,15 +168,43 @@ void determine_winner(){
 #pragma vector = PORT4_VECTOR
 __interrupt void ISR_player_switch_pressed() {
     // P4.6 = Player1,  P4.7 = Player2 switch input
+    int A1, A2;
 
     if(P4IFG & BIT6) { // switch pressed by player 1
+        ADCMCTL0 |= ADCINCH_5; // ADC input channel = A5(P1.5)
 
+        ADCCTL0 |= ADCENC | ADCSC; // enable and start
+        while((ADCIFG & ADCIFG0) == 0); // wait until ADC conversion ends
+        ADC_Value1 = ADCMEM0; // save the value into ADC_val
+
+        ADCMCTL0 |= ADCINCH_6; // ADC input channel = A5(P1.5)
+
+        ADCCTL0 |= ADCENC | ADCSC; // enable and start
+        while((ADCIFG & ADCIFG0) == 0); // wait until ADC conversion ends
+        ADC_Value2 = ADCMEM0; // save the value into ADC_val
+
+        if(ADC_Value1 < 1365) { // is this conversion really neccessary? can't we just skip and use ADC_Value?
+            A1 = 0;
+        }
+        else if(1365 <= ADC_Value1  && ADC_Value1 < 2730) {
+            A1 = 1;
+        }
+        else {
+            A1 = 2;
+        }
+
+        if(ADC_Value2 < 1365) {
+            A2 = 0;
+        }
+        else if(1365 <= ADC_Value2  && ADC_Value2 < 2730) {
+            A2 = 1;
+        }
+        else {
+            A2 = 2;
+        }
+
+        P4IFG &= ~BIT6; // reset flag
     }
-    ADCMCTL0 |= ADCINCH_5; // ADC input channel = A5(P1.5)
-
-    ADCCTL0 |= ADCENC | ADCSC; // enable and start
-    while((ADCIFG & ADCIFG0) == 0); // wait until ADC conversion ends
-    ADC_Value = ADCMEM0; // save the value into ADC_val
 }
 
 #pragma vector = PORT3_VECTOR
