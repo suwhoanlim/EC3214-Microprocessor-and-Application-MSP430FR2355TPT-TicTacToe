@@ -4,8 +4,6 @@
  * Global variables
  */
 
-int ADC_Value1 = 0; // remove if doesn't seem neccessary
-int ADC_Value2 = 0;
 int running_status = 0; // for which led to light up
 int player1_turn_end = 0;
 int player2_turn_end = 0;
@@ -79,30 +77,30 @@ void init_player_switch() {
      */
     P4DIR &= ~BIT6; // Configure as input
     P4DIR &= ~BIT7;
-    P3DIR &= ~BIT7; // for reset
+    P4DIR &= ~BIT1; // for reset
 
     P4REN |= BIT6; // enable pull up/down
     P4REN |= BIT7;
-    P3REN |= BIT7; // for reset
+    P4REN |= BIT1; // for reset
 
     P4OUT &= ~BIT6; // enable pull down, 0 when nothing is pressed, 1 when pressed.
     P4OUT &= ~BIT7;
-    P3OUT &= ~BIT7; // for reset
+    P4OUT &= ~BIT1; // for reset
 
     /*
      * Interrupt inits
      */
     P4IES &= ~BIT6; // interrupt for L-to-H
     P4IES &= ~BIT7;
-    P3IES &= ~BIT7;
+    P4IES &= ~BIT1;
 
     P4IFG &= ~BIT6; // Clear port for IRQ Flag
     P4IFG &= ~BIT7;
-    P3IFG &= ~BIT7;
+    P4IFG &= ~BIT1;
 
     P4IE |= BIT6; // Enable port IRQ
     P4IE |= BIT7;
-    P3IE |= BIT7;
+    P4IE |= BIT1;
 
 }
 void init_board_pins(){
@@ -114,27 +112,26 @@ void init_board_pins(){
     P6DIR |= BIT2;
     P6DIR |= BIT3;
     P6DIR |= BIT4;
-    P6DIR |= BIT5;
-    P6DIR |= BIT6;
+    P2DIR |= BIT1;
+    P2DIR |= BIT4;
 
-    P5DIR |= BIT0;
-    P5DIR |= BIT1;
-    P5DIR |= BIT2;
-    P5DIR |= BIT3;
-    P5DIR |= BIT4;
-
-    P4DIR |= BIT0;
-    P4DIR |= BIT1;
-    P4DIR |= BIT2;
-    P4DIR |= BIT3;
     P4DIR |= BIT4;
-    P4DIR |= BIT5;
+    P3DIR |= BIT3;
+    P2DIR |= BIT5;
+    P3DIR |= BIT2;
+    P3DIR |= BIT0;
 
-    P3DIR |= BIT5; // player1 scoreboard
-    P3DIR |= BIT6; // Player2 scoreboard
+    P3DIR |= BIT4;
+    P1DIR |= BIT1;
+    P1DIR |= BIT3;
+    P3DIR |= BIT5;
+    P1DIR |= BIT2;
+    P3DIR |= BIT1;
 
-
+    P4DIR |= BIT5; // player1 scoreboard
+    P5DIR |= BIT3; // Player2 scoreboard
 }
+
 void init_analogue_sensor(){
     /*
      * P1.4, P1.5 for player1
@@ -179,6 +176,8 @@ void determine_winner(){
 #pragma vector = PORT4_VECTOR
 __interrupt void ISR_player_switch_pressed() {
 
+    int ADC_Value1 = 0;
+    int ADC_Value2 = 0;
 
     // P4.6 = Player1,  P4.7 = Player2 switch input
 
@@ -189,8 +188,8 @@ __interrupt void ISR_player_switch_pressed() {
              * implement starting timer code here
              */
 
-            P3OUT &= ~BIT6;
-            P3OUT |= BIT5; // turn on scoreboard
+            P5OUT &= ~BIT4;
+            P4OUT |= BIT5; // turn on scoreboard
             P4IFG &= ~BIT6; // reset flag
             whoseturn = 0;
             return;
@@ -220,22 +219,22 @@ __interrupt void ISR_player_switch_pressed() {
             P6OUT |= BIT4;
         }
         else if((1365 <= ADC_Value1 && ADC_Value1 < 2730) && ADC_Value2 < 1365) {
-            P6OUT |= BIT6;
+            P2OUT |= BIT4;
         }
         else if((1365 <= ADC_Value1 && ADC_Value1 < 2730) && (1365 <= ADC_Value2 && ADC_Value2 < 2730)) {
-            P5OUT |= BIT1;
+            P3OUT |= BIT3;
         }
         else if((1365 <= ADC_Value1  && ADC_Value1 < 2730) && (2730 <= ADC_Value2)) {
-            P5OUT |= BIT3;
+            P3OUT |= BIT2;
         }
         else if(2730 <= ADC_Value1 && ADC_Value2 < 1365) {
-            P4OUT |= BIT0;
+            P3OUT |= BIT4;
         }
         else if(2730 <= ADC_Value1 && (1365 <= ADC_Value2  && ADC_Value2 < 2730)) {
-            P4OUT |= BIT2;
+            P1OUT |= BIT3;
         }
         else if(2730 <= ADC_Value1 && (2730 <= ADC_Value2)) {
-            P4OUT |= BIT5;
+            P1OUT |= BIT2;
         }
         player1_turn_end = 1;
         whoseturn = 1;
@@ -248,8 +247,8 @@ __interrupt void ISR_player_switch_pressed() {
             /* TODO
              * implement starting timer code here
              */
-            P3OUT &= ~BIT5;
-            P3OUT |= BIT6; // turn on scoreboard
+            P4OUT &= ~BIT5;
+            P5OUT |= BIT4; // turn on scoreboard
             P4IFG &= ~BIT7; // reset flag
             whoseturn = 1;
             return;
@@ -276,25 +275,25 @@ __interrupt void ISR_player_switch_pressed() {
             P6OUT |= BIT3;
         }
         else if(ADC_Value1 < 1365 && (2730 <= ADC_Value2)) {
-            P6OUT |= BIT5;
+            P2OUT |= BIT1;
         }
         else if((1365 <= ADC_Value1  && ADC_Value1 < 2730) && ADC_Value2 < 1365) {
-            P5OUT |= BIT0;
+            P4OUT |= BIT4;
         }
         else if((1365 <= ADC_Value1  && ADC_Value1 < 2730) && (1365 <= ADC_Value2  && ADC_Value2 < 2730)) {
-            P5OUT |= BIT2;
+            P2OUT |= BIT5;
         }
         else if((1365 <= ADC_Value1  && ADC_Value1 < 2730) && (2730 <= ADC_Value2)) {
-            P5OUT |= BIT4;
+            P3OUT |= BIT0;
         }
         else if(2730 <= ADC_Value1 && ADC_Value2 < 1365) {
-            P4OUT |= BIT1;
+            P1OUT |= BIT1;
         }
         else if(2730 <= ADC_Value1 && (1365 <= ADC_Value2  && ADC_Value2 < 2730)) {
-            P4OUT |= BIT3;
+            P3OUT |= BIT5;
         }
         else if(2730 <= ADC_Value1 && (2730 <= ADC_Value2)) {
-            P4OUT |= BIT5;
+            P3OUT |= BIT1;
         }
         player2_turn_end = 1;
         whoseturn = 0;
@@ -303,7 +302,7 @@ __interrupt void ISR_player_switch_pressed() {
     }
 }
 
-#pragma vector = PORT3_VECTOR
+#pragma vector = PORT4_VECTOR
 __interrupt void ISR_reset_switch_pressed() {
     /*
      * reset switch
@@ -317,17 +316,21 @@ __interrupt void ISR_reset_switch_pressed() {
     /* Turn off LEDs */
     int i = 0;
     int bit;
-    for(i = 6; i >= 0; i--) {
+    for(i = 4; i >= 0; i--) {
         bit = 1 << i;
         P6OUT &= ~bit; // turn off LED
     }
-    for(i = 4; i >= 0; i--) {
-        bit = 1 << i;
-        P5OUT &= ~bit; // turn off LED
-    }
+    P2OUT &= ~BIT1;
+    P2OUT &= ~BIT4;
+    P2OUT &= ~BIT5;
+    P1OUT &= ~BIT1;
+    P1OUT &= ~BIT2;
+    P1OUT &= ~BIT3;
+    P4OUT &= ~BIT4;
+
     for(i = 5; i >= 0; i--) {
         bit = 1 << i;
-        P4OUT &= ~bit; // turn off LED
+        P3OUT &= ~bit; // turn off LED
     }
     whoseturn = -1;
     player1_turn_end = -1;
@@ -337,8 +340,8 @@ __interrupt void ISR_reset_switch_pressed() {
     // turn on both LED, give it some delay, and turn it off to indicate board is ready
 
     if(game_end == 0) { // reset interrupt happend before game end
-        P3OUT &= BIT5;
-        P3OUT &= BIT6;
+        P4OUT &= BIT5;
+        P5OUT &= BIT4;
     }
     game_end = 0;
     int i = 0xFFFF;
@@ -349,14 +352,15 @@ __interrupt void ISR_reset_switch_pressed() {
     for(i=0xFFFF;i > 0; i--) {} // delay to display result
 
     for(i=0xFFFF;i > 0; i--) {} // delay to display result
-    P3OUT &= ~BIT5;
-    P3OUT &= ~BIT6;
+    P4OUT &= ~BIT5;
+    P5OUT &= ~BIT4;
 
 
     /* Clear interrupt flags */
     TB0CTL &= ~TBIFG;
     P4IFG &= ~BIT6;
     P4IFG &= ~BIT7;
+    P4IFG &= ~BIT1;
 }
 
 #pragma vector = TIMER0_B0_VECTOR
@@ -372,27 +376,27 @@ __interrupt void ISR_TB0_CCR0() {
      */
     if(whoseturn==0 && player1_turn_end != 1) {
         //player 2 wins due to timeout
-        P3OUT |= BIT6;
-        P3OUT &= ~BIT5;
+        P5OUT |= BIT4;
+        P4OUT &= ~BIT5;
         game_end = 1;
-        P3IFG |= BIT7; // set reset switch flag
+        P4IFG |= BIT1; // set reset switch flag
     }
     else if(whoseturn==1 && player2_turn_end != 1) {
         //player 1 wins due to timeout
-        P3OUT |= BIT5;
-        P3OUT &= ~BIT6;
+        P4OUT |= BIT5;
+        P5OUT &= ~BIT4;
         game_end = 1;
-        P3IFG |= BIT7; // set reset switch flag
+        P4IFG |= BIT1; // set reset switch flag
     }
     else if( // Check win condition for player1
             (P6OUT & BIT0) && (P6OUT & BIT2) && (P6OUT & BIT4) ||
-            (P6OUT & BIT6) && (P5OUT & BIT1) && (P5OUT & BIT3) ||
-            (P4OUT & BIT0) && (P4OUT & BIT2) && (P4OUT & BIT4) ||
-            (P6OUT & BIT0) && (P6OUT & BIT6) && (P4OUT & BIT0) ||
-            (P6OUT & BIT2) && (P5OUT & BIT1) && (P4OUT & BIT2) ||
-            (P6OUT & BIT4) && (P5OUT & BIT3) && (P4OUT & BIT4) ||
-            (P6OUT & BIT0) && (P5OUT & BIT1) && (P4OUT & BIT4) ||
-            (P4OUT & BIT0) && (P5OUT & BIT1) && (P6OUT & BIT4)
+            (P2OUT & BIT4) && (P3OUT & BIT3) && (P3OUT & BIT2) ||
+            (P3OUT & BIT4) && (P1OUT & BIT3) && (P1OUT & BIT2) ||
+            (P6OUT & BIT0) && (P2OUT & BIT4) && (P3OUT & BIT4) ||
+            (P6OUT & BIT2) && (P3OUT & BIT3) && (P1OUT & BIT3) ||
+            (P6OUT & BIT4) && (P3OUT & BIT2) && (P1OUT & BIT2) ||
+            (P6OUT & BIT0) && (P3OUT & BIT3) && (P1OUT & BIT2) ||
+            (P3OUT & BIT4) && (P3OUT & BIT3) && (P6OUT & BIT4)
     ) {
         P3OUT |= BIT5;
         P3OUT &= ~BIT6;
@@ -400,30 +404,30 @@ __interrupt void ISR_TB0_CCR0() {
         P3IFG |= BIT7; // set reset switch flag
     }
     else if( // Check win condition for player2
-            (P6OUT & BIT1) && (P6OUT & BIT3) && (P6OUT & BIT5) ||
-            (P5OUT & BIT0) && (P5OUT & BIT2) && (P5OUT & BIT4) ||
-            (P4OUT & BIT1) && (P4OUT & BIT3) && (P4OUT & BIT5) ||
-            (P6OUT & BIT1) && (P5OUT & BIT0) && (P4OUT & BIT1) ||
-            (P6OUT & BIT3) && (P5OUT & BIT2) && (P4OUT & BIT3) ||
-            (P6OUT & BIT5) && (P5OUT & BIT4) && (P4OUT & BIT5) ||
-            (P6OUT & BIT1) && (P5OUT & BIT2) && (P4OUT & BIT5) ||
-            (P4OUT & BIT1) && (P5OUT & BIT2) && (P6OUT & BIT5)
+            (P6OUT & BIT1) && (P6OUT & BIT3) && (P2OUT & BIT1) ||
+            (P4OUT & BIT4) && (P2OUT & BIT5) && (P3OUT & BIT0) ||
+            (P1OUT & BIT1) && (P3OUT & BIT5) && (P3OUT & BIT1) ||
+            (P6OUT & BIT1) && (P4OUT & BIT4) && (P1OUT & BIT1) ||
+            (P6OUT & BIT3) && (P2OUT & BIT4) && (P3OUT & BIT5) ||
+            (P2OUT & BIT1) && (P3OUT & BIT0) && (P3OUT & BIT1) ||
+            (P6OUT & BIT1) && (P2OUT & BIT5) && (P3OUT & BIT1) ||
+            (P1OUT & BIT1) && (P2OUT & BIT5) && (P2OUT & BIT1)
     ) {
-        P3OUT |= BIT6;
-        P3OUT &= ~BIT5;
+        P5OUT |= BIT4;
+        P5OUT &= ~BIT4;
         game_end = 1;
-        P3IFG |= BIT7; // set reset switch flag
+        P4IFG |= BIT1; // set reset switch flag
     }
     else if(on_led == 9) { // game ends in a tie
-        P3OUT |= BIT6;
-        P3OUT |= BIT5;
+        P5OUT |= BIT4;
+        P5OUT |= BIT4;
         game_end = 1;
-        P3IFG |= BIT7; // set reset switch flag
+        P4IFG |= BIT1; // set reset switch flag
         on_led = 0;
     }
     else { // move to next turn
-        P3OUT ^ BIT6;
-        P3OUT ^ BIT5;
+        P5OUT ^ BIT4;
+        P4OUT ^ BIT5;
     }
 
     //set reset interrupt
