@@ -1,4 +1,5 @@
 #include <msp430.h> 
+#include <math.h>
 
 /*
  * Global variables
@@ -11,6 +12,22 @@ int whoseturn = 0; // 1 for p2's turn, 0 for p1's turn
 int on_led = 0;
 int game_end = 0;
 
+//Some below are never used.
+//----------- Parameters -----------//
+int ControlMode = 0;
+float SpeedCmd = 30; //unit: RPM
+float Kp = 0.01;
+float Ki = 0.01;
+//----------------------------------//
+
+int SW1;
+int EncoderCount = 0;
+float Duty = 0.2;
+float DutyPI = 0;
+float Error = 0;
+float ErrorSum = 0;
+float SpeedMeas = 0; //unit: RPM
+
 
 
 /*
@@ -19,10 +36,11 @@ int game_end = 0;
 void init_player_switch(); // init player switches
 void init_board_pins(); // init tictactoe led pins
 void init_analogue_sensor(); // init potentiometer
-void init_dc_motor(); // init dc motor
 void init_timer(); // init timer
-void reset_everything(); // used for reset button, impelemented on interrupt?
-void determine_winner(); // used for timeout, or when the game is a tie, or when someone wins, implemented on timer?
+//void reset_everything(); // used for reset button, impelemented on interrupt?
+//void determine_winner(); // used for timeout, or when the game is a tie, or when someone wins, implemented on timer?
+void init_encoder(); // used to config dc motor
+void init_PWM();
 // TODO: MORE FUNCTIONS TO COME
 
 /**
@@ -35,8 +53,9 @@ int main(void)
 	init_player_switch(); // initialize switch for player1 and player2
 	init_board_pins(); // initialize tictactoe led pins
 	init_analogue_sensor(); // initialize analogue sensor(potentiometer) for player 1 and player2
-	init_dc_motor(); // initialize dc motor to represent time
 	init_timer(); // initialize timer for dc motor speed
+	init_PWM();
+	init_encoder();
 
 	__enable_interrupt();
 	PM5CTL0 &= ~LOCKLPM5;
@@ -163,14 +182,55 @@ void init_analogue_sensor(){
 void init_dc_motor(){
     // implement later
 }
+
+void init_encoder(){
+    P5DIR &= ~BIT0;             // Configure P5.0(Encoder) as input
+    P5IES &= ~BIT0;             // Configure IRQ Sensitivity H-to-L
+}
+
+void init_PWM(){
+    P5DIR |= BIT2;              // Configure P1.6 as output
+    P5OUT |= BIT2;              // Set the initial value as 1
+
+    TB0CTL |= TBCLR;            // Clear TB0
+    TB0CTL |= TBSSEL__SMCLK;    // Source = SMCLK (1Mhz)
+    TB0CTL |= MC__UP;           // Mode = Up
+    TB0CCR0 = 999;              // CCR0 = 999 -> PWM Frequency = 1MHz/(999 + 1) = 1 kHz
+    TB0CCR1 = 0;                // CCR1 = 0, initialization
+
+    TB0CCTL0 |= CCIE;           // Enable TB0 CCR0 IRQ
+    TB0CCTL0 &= ~CCIFG;         // Clear TB0 CCR0 Flag
+    TB0CCTL1 |= CCIE;           // Enable TB0 CCR1 IRQ
+    TB0CCTL1 &= ~CCIFG;         // Clear TB0 CCR1 Flag
+}
+
 void init_timer(){
-    // implement later
-}
-void reset_everything(){
+    // code merged
+    TB1CTL |= TBCLR;            // Clear TB1
+    TB1CTL |= TBSSEL__ACLK;     // Source = ACLK (32.768kHz)
+    TB1CTL |= MC__UP;           // Mode = Up
+    TB1CCR0 = 3276;             // CCR0 = 3276 -> Control Frequency = 32.768kHz/(3276 + 1) = 10 Hz
 
-}
-void determine_winner(){
+    TB1CCTL0 |= CCIE;           // Enable TB1 CCR0 IRQ
+    TB1CCTL0 &= ~CCIFG;         // Clear TB1 CCR0 Flag
 
+    TB2CTL |= TBCLR;            // Clear TB2
+    TB2CTL |= TBSSEL__ACLK;     // Source = ACLK (32.768kHz)
+    TB2EX0 |= TBIDEX_4;         // Divide by 5 by using IDEX -> 1 cycle = 10s
+    TB2CTL |= MC__UP;            // Mode = CONTINUOUS
+    TB2CCR0 = 65530;            // CCR0 = 65535 -> Control Frequency 32.768kHz/5 * 65535 ~= 10s
+    TB2CCR1 = 21845;            // CCR1 = 43691 -> Control Frequency 32.768kHz/5 * 43691 ~= 3s
+    TB2CCR2 = 43691;
+
+    //TB2CTL |= TBIE;             // Enable TB2 overflow IRQ
+    //TB2CTL &= ~TBIFG;           // Clear TB2 overflow Flag
+
+    TB2CCTL0 |= CCIE;           // Enable TB2 CCR0 IRQ
+    TB2CCTL0 &= ~CCIFG;         // Clear TB2 CCR0 Flag
+    TB2CCTL1 |= CCIE;           // Enable TB2 CCR1 IRQ
+    TB2CCTL1 &= ~CCIFG;         // Clear TB2 CCR1 Flag
+    TB2CCTL2 |= CCIE;           // Enable TB2 CCR2 IRQ
+    TB2CCTL2 &= ~CCIFG;         // Clear TB2 CCR2 Flag
 }
 
 #pragma vector = PORT4_VECTOR
@@ -187,6 +247,13 @@ __interrupt void ISR_player_switch_pressed() {
             /* TODO
              * implement starting timer code here
              */
+            Duty = 0.2;
+            TB2CTL |= TBSSEL__ACLK;     // Source = ACLK (32.768kHz)
+            TB2EX0 |= TBIDEX_4;         // Divide by 5 by using IDEX -> 1 cycle = 10s
+            TB2CTL |= MC__UP;            // Mode = CONTINUOUS
+            TB2CCR0 = 65530;            // CCR0 = 65535 -> Control Frequency 32.768kHz/5 * 65535 ~= 10s
+            TB2CCR1 = 21845;            // CCR1 = 43691 -> Control Frequency 32.768kHz/5 * 43691 ~= 3s
+            TB2CCR2 = 43691;
 
             P5OUT &= ~BIT4;
             P4OUT |= BIT5; // turn on scoreboard
@@ -237,7 +304,7 @@ __interrupt void ISR_player_switch_pressed() {
             P1OUT |= BIT2;
         }
         player1_turn_end = 1;
-        whoseturn = 1;
+        player2_turn_end = 0;
         P4IFG &= ~BIT6; // reset flag
         on_led++;
     }
@@ -247,6 +314,14 @@ __interrupt void ISR_player_switch_pressed() {
             /* TODO
              * implement starting timer code here
              */
+            Duty = 0.2;
+            TB2CTL |= TBSSEL__ACLK;     // Source = ACLK (32.768kHz)
+            TB2EX0 |= TBIDEX_4;         // Divide by 5 by using IDEX -> 1 cycle = 10s
+            TB2CTL |= MC__UP;            // Mode = CONTINUOUS
+            TB2CCR0 = 65530;            // CCR0 = 65535 -> Control Frequency 32.768kHz/5 * 65535 ~= 10s
+            TB2CCR1 = 21845;            // CCR1 = 43691 -> Control Frequency 32.768kHz/5 * 43691 ~= 3s
+            TB2CCR2 = 43691;
+
             P4OUT &= ~BIT5;
             P5OUT |= BIT4; // turn on scoreboard
             P4IFG &= ~BIT7; // reset flag
@@ -296,13 +371,13 @@ __interrupt void ISR_player_switch_pressed() {
             P3OUT |= BIT1;
         }
         player2_turn_end = 1;
-        whoseturn = 0;
+        player1_turn_end = 0;
         P4IFG &= ~BIT7; // reset flag
         on_led++;
     }
 }
 
-#pragma vector = PORT4_VECTOR
+#pragma vector = PORT2_VECTOR
 __interrupt void ISR_reset_switch_pressed() {
     /*
      * reset switch
@@ -310,8 +385,9 @@ __interrupt void ISR_reset_switch_pressed() {
     * - turn off the leds in tictactoe board, clears the led for whose turn
 */
     running_status = 0;
-    TB0CTL |= MC__STOP; // stop timer
-    TB0CTL |= TBCLR; // clear timer and dividers
+    TB2CTL |= MC__STOP; // stop timer
+    TB2CTL |= TBCLR; // clear timer and dividers
+    Duty = 0.0;
 
     /* Turn off LEDs */
     int i = 0;
@@ -344,7 +420,7 @@ __interrupt void ISR_reset_switch_pressed() {
         P5OUT &= BIT4;
     }
     game_end = 0;
-    int i = 0xFFFF;
+    i = 0xFFFF;
     for(i=0xFFFF;i > 0; i--) {} // delay to display result
 
     for(i=0xFFFF;i > 0; i--) {} // delay to display result
@@ -357,14 +433,17 @@ __interrupt void ISR_reset_switch_pressed() {
 
 
     /* Clear interrupt flags */
-    TB0CTL &= ~TBIFG;
+    TB2CCTL0 &= ~CCIFG;
+    TB2CCTL1 &= ~CCIFG;
+    TB2CCTL2 &= ~CCIFG;
+
     P4IFG &= ~BIT6;
     P4IFG &= ~BIT7;
-    P4IFG &= ~BIT1;
+    P2IFG &= ~BIT3;
 }
 
-#pragma vector = TIMER0_B0_VECTOR
-__interrupt void ISR_TB0_CCR0() {
+#pragma vector = TIMER2_B0_VECTOR   //TB2CCR0
+__interrupt void ISR_TB2_CCR0(void) {
     /*
      * TODO
      * implement determine_winner here
@@ -379,14 +458,14 @@ __interrupt void ISR_TB0_CCR0() {
         P5OUT |= BIT4;
         P4OUT &= ~BIT5;
         game_end = 1;
-        P4IFG |= BIT1; // set reset switch flag
+        P2IFG |= BIT3; // set reset switch flag
     }
     else if(whoseturn==1 && player2_turn_end != 1) {
         //player 1 wins due to timeout
         P4OUT |= BIT5;
         P5OUT &= ~BIT4;
         game_end = 1;
-        P4IFG |= BIT1; // set reset switch flag
+        P2IFG |= BIT3; // set reset switch flag
     }
     else if( // Check win condition for player1
             (P6OUT & BIT0) && (P6OUT & BIT2) && (P6OUT & BIT4) ||
@@ -401,7 +480,7 @@ __interrupt void ISR_TB0_CCR0() {
         P3OUT |= BIT5;
         P3OUT &= ~BIT6;
         game_end = 1;
-        P3IFG |= BIT7; // set reset switch flag
+        P2IFG |= BIT3; // set reset switch flag
     }
     else if( // Check win condition for player2
             (P6OUT & BIT1) && (P6OUT & BIT3) && (P2OUT & BIT1) ||
@@ -416,21 +495,70 @@ __interrupt void ISR_TB0_CCR0() {
         P5OUT |= BIT4;
         P5OUT &= ~BIT4;
         game_end = 1;
-        P4IFG |= BIT1; // set reset switch flag
+        P2IFG |= BIT3; // set reset switch flag
     }
     else if(on_led == 9) { // game ends in a tie
         P5OUT |= BIT4;
         P5OUT |= BIT4;
         game_end = 1;
-        P4IFG |= BIT1; // set reset switch flag
+        P2IFG |= BIT3; // set reset switch flag
         on_led = 0;
     }
     else { // move to next turn
-        P5OUT ^ BIT4;
-        P4OUT ^ BIT5;
+        P5OUT ^= BIT4;
+        P4OUT ^= BIT5;
+        whoseturn ^= 1;
     }
 
     //set reset interrupt
     //set global variable to tell reset interrupt that game just ended
-    TB0CCTL0 &= ~CCIFG; // clear ccr0 flag
+    //TB0CCTL0 &= ~CCIFG; // clear ccr0 flag
+    Duty = 0.2;
+    TB2CCTL0 &= ~CCIFG;
 }
+
+/* ISR for Encoder (Pulse counting) */
+#pragma vector=PORT1_VECTOR // THIS CODE SHOULD NOT WORK... IN FACT THIS ISR WILL NEVER BE EXECUTED??
+__interrupt void EncoderISR(void)
+{
+    EncoderCount++;
+    P5IFG &= ~BIT0;
+}
+
+/* ISR for PWM (Pulse generation) */
+#pragma vector = TIMER0_B0_VECTOR
+__interrupt void ISR_TB0_CCR0(void)
+{
+    P5OUT |= BIT2;
+    TB0CCTL0 &= ~CCIFG;
+}
+#pragma vector = TIMER0_B1_VECTOR
+__interrupt void ISR_TB0_CCR1(void)
+{
+    P5OUT &= ~BIT2;
+    TB0CCTL1 &= ~CCIFG;
+}
+
+/* ISR for Timer (Speed control) */
+#pragma vector = TIMER1_B0_VECTOR
+__interrupt void ISR_TB1_CCR0(void) {
+    SpeedMeas = EncoderCount*0.625;         // Calculate the motor speed from the pulse count
+
+    TB0CCR1 = (int)(999*Duty);      // Determine TB0 CCR1
+    EncoderCount = 0;               // Reset the pulse count
+    TB1CCTL0 &= ~CCIFG;             // Clear TB1 CCR0 Flag
+}
+
+#pragma vector = TIMER2_B1_VECTOR   //TB2CCR1
+__interrupt void ISR_TB2_CCR(void)
+{
+    if (TB2CCTL1 & CCIFG){
+        //SpeedCmd = 60;
+        Duty = 0.4;
+        TB2CCTL1 &= ~CCIFG;}
+    else if(TB2CCTL2 & CCIFG){
+        //SpeedCmd = 120;
+        Duty = 0.8;
+        TB2CCTL2 &= ~CCIFG;}
+}
+

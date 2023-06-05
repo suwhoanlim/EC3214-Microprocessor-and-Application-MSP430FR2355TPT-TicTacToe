@@ -23,7 +23,4 @@ OBJS__QUOTED += \
 C_DEPS__QUOTED += \
 "main.d" 
 
-C_SRCS__QUOTED += \
-"../main.c" 
-
 
