@@ -11,6 +11,7 @@ int player1_turn_end = 0;
 int player2_turn_end = 0;
 int whoseturn = 0; // 1 for p2's turn, 0 for p1's turn
 int on_led = 0;
+int game_end = 0;
 
 
 
@@ -129,8 +130,8 @@ void init_board_pins(){
     P4DIR |= BIT4;
     P4DIR |= BIT5;
 
-    P3DIR |= BIT5; // player1
-    P3DIR |= BIT6; // Player2
+    P3DIR |= BIT5; // player1 scoreboard
+    P3DIR |= BIT6; // Player2 scoreboard
 
 
 }
@@ -333,6 +334,24 @@ __interrupt void ISR_reset_switch_pressed() {
     player2_turn_end = -1;
     on_led = 0;
     //TODO turn on both LED on scoreboard?
+    // turn on both LED, give it some delay, and turn it off to indicate board is ready
+
+    if(game_end == 0) { // reset interrupt happend before game end
+        P3OUT &= BIT5;
+        P3OUT &= BIT6;
+    }
+    game_end = 0;
+    int i = 0xFFFF;
+    for(i=0xFFFF;i > 0; i--) {} // delay to display result
+
+    for(i=0xFFFF;i > 0; i--) {} // delay to display result
+
+    for(i=0xFFFF;i > 0; i--) {} // delay to display result
+
+    for(i=0xFFFF;i > 0; i--) {} // delay to display result
+    P3OUT &= ~BIT5;
+    P3OUT &= ~BIT6;
+
 
     /* Clear interrupt flags */
     TB0CTL &= ~TBIFG;
@@ -352,15 +371,62 @@ __interrupt void ISR_TB0_CCR0() {
      * 5. tie because no crossing was made
      */
     if(whoseturn==0 && player1_turn_end != 1) {
-        //player 2 wins
+        //player 2 wins due to timeout
+        P3OUT |= BIT6;
+        P3OUT &= ~BIT5;
+        game_end = 1;
+        P3IFG |= BIT7; // set reset switch flag
     }
     else if(whoseturn==1 && player2_turn_end != 1) {
-        //player 1 wins
+        //player 1 wins due to timeout
+        P3OUT |= BIT5;
+        P3OUT &= ~BIT6;
+        game_end = 1;
+        P3IFG |= BIT7; // set reset switch flag
     }
-    else if(on_led == 9) {
-        //tie
+    else if( // Check win condition for player1
+            (P6OUT & BIT0) && (P6OUT & BIT2) && (P6OUT & BIT4) ||
+            (P6OUT & BIT6) && (P5OUT & BIT1) && (P5OUT & BIT3) ||
+            (P4OUT & BIT0) && (P4OUT & BIT2) && (P4OUT & BIT4) ||
+            (P6OUT & BIT0) && (P6OUT & BIT6) && (P4OUT & BIT0) ||
+            (P6OUT & BIT2) && (P5OUT & BIT1) && (P4OUT & BIT2) ||
+            (P6OUT & BIT4) && (P5OUT & BIT3) && (P4OUT & BIT4) ||
+            (P6OUT & BIT0) && (P5OUT & BIT1) && (P4OUT & BIT4) ||
+            (P4OUT & BIT0) && (P5OUT & BIT1) && (P6OUT & BIT4)
+    ) {
+        P3OUT |= BIT5;
+        P3OUT &= ~BIT6;
+        game_end = 1;
+        P3IFG |= BIT7; // set reset switch flag
+    }
+    else if( // Check win condition for player2
+            (P6OUT & BIT1) && (P6OUT & BIT3) && (P6OUT & BIT5) ||
+            (P5OUT & BIT0) && (P5OUT & BIT2) && (P5OUT & BIT4) ||
+            (P4OUT & BIT1) && (P4OUT & BIT3) && (P4OUT & BIT5) ||
+            (P6OUT & BIT1) && (P5OUT & BIT0) && (P4OUT & BIT1) ||
+            (P6OUT & BIT3) && (P5OUT & BIT2) && (P4OUT & BIT3) ||
+            (P6OUT & BIT5) && (P5OUT & BIT4) && (P4OUT & BIT5) ||
+            (P6OUT & BIT1) && (P5OUT & BIT2) && (P4OUT & BIT5) ||
+            (P4OUT & BIT1) && (P5OUT & BIT2) && (P6OUT & BIT5)
+    ) {
+        P3OUT |= BIT6;
+        P3OUT &= ~BIT5;
+        game_end = 1;
+        P3IFG |= BIT7; // set reset switch flag
+    }
+    else if(on_led == 9) { // game ends in a tie
+        P3OUT |= BIT6;
+        P3OUT |= BIT5;
+        game_end = 1;
+        P3IFG |= BIT7; // set reset switch flag
         on_led = 0;
     }
+    else { // move to next turn
+        P3OUT ^ BIT6;
+        P3OUT ^ BIT5;
+    }
 
+    //set reset interrupt
+    //set global variable to tell reset interrupt that game just ended
     TB0CCTL0 &= ~CCIFG; // clear ccr0 flag
 }
