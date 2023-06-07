@@ -18,19 +18,16 @@ int tb2int = 0;
 
 //Some below are never used.
 //----------- Parameters -----------//
-int ControlMode = 0;
-float SpeedCmd = 30; //unit: RPM
-float Kp = 0.01;
-float Ki = 0.01;
+
 //----------------------------------//
 
-int SW1;
+//int SW1;
 int EncoderCount = 0;
 float Duty = 0.2;
-float DutyPI = 0;
-float Error = 0;
-float ErrorSum = 0;
-float SpeedMeas = 0; //unit: RPM
+//float DutyPI = 0;
+//float Error = 0;
+//float ErrorSum = 0;
+//float SpeedMeas = 0; //unit: RPM
 
 
 
@@ -90,7 +87,7 @@ int main(void)
 	     */
 	}
 
-	return 0; // never reached
+	 // never reached
 }
 
 void init_player_switch() {
@@ -393,7 +390,7 @@ __interrupt void ISR_reset_switch_pressed() {
     running_status = 0;
     TB2CTL |= MC__STOP; // stop timer
     TB2CTL |= TBCLR; // clear timer and dividers
-    Duty = 0.0;
+    Duty = 0.5;
 
     /* Turn off LEDs */
     int i = 0;
@@ -444,6 +441,7 @@ __interrupt void ISR_reset_switch_pressed() {
     TB2CCTL0 &= ~CCIFG;
     TB2CCTL1 &= ~CCIFG;
     TB2CCTL2 &= ~CCIFG;
+
 
     P4IFG &= ~BIT6;
     P4IFG &= ~BIT7;
@@ -563,6 +561,7 @@ __interrupt void ISR_TB1_CCR0(void) {
 #pragma vector = TIMER2_B1_VECTOR   //TB2CCR1
 __interrupt void ISR_TB2_CCR(void)
 {
+    /*
     tb2int ++;
     if (TB2CCTL1 & CCIFG){
         //SpeedCmd = 60;
@@ -572,5 +571,6 @@ __interrupt void ISR_TB2_CCR(void)
         //SpeedCmd = 120;
         Duty = 0.8;
         TB2CCTL2 &= ~CCIFG;}
+*/
 }
 
