@@ -112,11 +112,11 @@ void init_player_switch() {
      */
     P4IES &= ~BIT6; // interrupt for L-to-H
     P4IES &= ~BIT7;
-    P4IES &= ~BIT1;
+    P2IES &= ~BIT3;
 
     P4IFG &= ~BIT6; // Clear port for IRQ Flag
     P4IFG &= ~BIT7;
-    P4IFG &= ~BIT1;
+    P2IFG &= ~BIT3;
 
     P4IE |= BIT6; // Enable port IRQ
     P4IE |= BIT7;
@@ -373,6 +373,7 @@ __interrupt void ISR_player_switch_pressed() {
         }
         player2_turn_end = 1;
         player1_turn_end = 0;
+        z = -1;
         P4IFG &= ~BIT7; // reset flag
         on_led++;
     }
