@@ -1,10 +1,10 @@
 ******************************************************************************
                   MSP430 Linker PC v21.6.1                     
 ******************************************************************************
->> Linked Wed Jun  7 16:13:23 2023
+>> Linked Wed Jun  7 17:12:33 2023
 
 OUTPUT FILE NAME:   <TicTacToe.out>
-ENTRY POINT SYMBOL: "_c_int00_noargs_mpu"  address: 00008c6a
+ENTRY POINT SYMBOL: "_c_int00_noargs_mpu"  address: 00008c2c
 
 
 MEMORY CONFIGURATION
@@ -16,8 +16,8 @@ MEMORY CONFIGURATION
   INFO                  00001800   00000200  00000000  00000200  RWIX
   TLVMEM                00001a00   00000200  00000000  00000200  RWIX
   BOOTCODE              00001c00   00000400  00000000  00000400  RWIX
-  RAM                   00002000   00001000  000000d0  00000f30  RWIX
-  FRAM                  00008000   00007f80  00000cb0  000072d0  RWIX
+  RAM                   00002000   00001000  000000d2  00000f2e  RWIX
+  FRAM                  00008000   00007f80  00000c72  0000730e  RWIX
   JTAGSIGNATURE         0000ff80   00000004  00000004  00000000  RWIX  ffff 
   BSLSIGNATURE          0000ff84   00000004  00000004  00000000  RWIX  ffff 
   BSLCONFIGURATIONSIGNA 0000ff88   00000002  00000002  00000000  RWIX  ffff 
@@ -107,42 +107,42 @@ section   page    origin      length       input sections
 
 .const     0    0000802a    00000000     UNINITIALIZED
 
-.text      0    0000802a    0000056e     
+.text      0    0000802a    00000570     
                   0000802a    000000ee     rts430x_lc_sd_eabi.lib : copy_decompress_lzss.c.obj (.text:decompress:lzss:__TI_decompress_lzss)
                   00008118    000000b8                            : fs_mpy.asm.obj (.text)
                   000081d0    0000006a                            : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit_hold_wdt:__TI_auto_init_nobinit_nopinit_hold_wdt)
                   0000823a    00000068                            : fs_toi.asm.obj (.text)
                   000082a2    00000066     main.obj (.text:init_timer)
-                  00008308    00000062     main.obj (.text:init_player_switch)
-                  0000836a    00000060     main.obj (.text:init_board_pins)
-                  000083ca    0000005c     main.obj (.text:init_analogue_sensor)
-                  00008426    00000040     rts430x_lc_sd_eabi.lib : cpy_util.asm.obj (.text:__memcpy_far)
-                  00008466    0000003c     FRWP_INIT_LIB_CCS_msp430_large_code_small_data.lib : frwp_init.obj (.text:__mpu_init)
-                  000084a2    0000003c     rts430x_lc_sd_eabi.lib : copy_decompress_none.c.obj (.text:decompress:none:__TI_decompress_none)
-                  000084de    00000038     main.obj (.text:init_PWM)
-                  00008516    00000036     rts430x_lc_sd_eabi.lib : fs_itof.asm.obj (.text)
-                  0000854c    0000002c     main.obj (.text:main)
-                  00008578    0000000a     main.obj (.text:init_encoder)
-                  00008582    0000000a     rts430x_lc_sd_eabi.lib : lsl16.asm.obj (.text)
-                  0000858c    00000006                            : exit.c.obj (.text:abort)
-                  00008592    00000004                            : pre_init.c.obj (.text:_system_pre_init)
-                  00008596    00000002                            : startup.c.obj (.text:_system_post_cinit)
+                  00008308    00000062     main.obj (.text:init_board_pins)
+                  0000836a    00000062     main.obj (.text:init_player_switch)
+                  000083cc    0000005c     main.obj (.text:init_analogue_sensor)
+                  00008428    00000040     rts430x_lc_sd_eabi.lib : cpy_util.asm.obj (.text:__memcpy_far)
+                  00008468    0000003c     FRWP_INIT_LIB_CCS_msp430_large_code_small_data.lib : frwp_init.obj (.text:__mpu_init)
+                  000084a4    0000003c     rts430x_lc_sd_eabi.lib : copy_decompress_none.c.obj (.text:decompress:none:__TI_decompress_none)
+                  000084e0    00000038     main.obj (.text:init_PWM)
+                  00008518    00000036     rts430x_lc_sd_eabi.lib : fs_itof.asm.obj (.text)
+                  0000854e    0000002c     main.obj (.text:main)
+                  0000857a    0000000a     main.obj (.text:init_encoder)
+                  00008584    0000000a     rts430x_lc_sd_eabi.lib : lsl16.asm.obj (.text)
+                  0000858e    00000006                            : exit.c.obj (.text:abort)
+                  00008594    00000004                            : pre_init.c.obj (.text:_system_pre_init)
+                  00008598    00000002                            : startup.c.obj (.text:_system_post_cinit)
 
 .text:_isr 
-*          0    00008598    00000718     
-                  00008598    00000334     main.obj (.text:_isr:ISR_player_switch_pressed)
-                  000088cc    000001f4     main.obj (.text:_isr:ISR_TB2_CCR0)
-                  00008ac0    00000136     main.obj (.text:_isr:ISR_reset_switch_pressed)
-                  00008bf6    00000044     main.obj (.text:_isr:ISR_TB1_CCR0)
-                  00008c3a    00000030     main.obj (.text:_isr:ISR_TB2_CCR)
-                  00008c6a    00000020     rts430x_lc_sd_eabi.lib : boot.c.obj (.text:_isr:_c_int00_noargs_mpu)
-                  00008c8a    0000000a     main.obj (.text:_isr:EncoderISR)
-                  00008c94    0000000a     main.obj (.text:_isr:ISR_TB0_CCR0)
-                  00008c9e    0000000a     main.obj (.text:_isr:ISR_TB0_CCR1)
-                  00008ca8    00000008     rts430x_lc_sd_eabi.lib : isr_trap.asm.obj (.text:_isr:__TI_ISR_TRAP)
+*          0    0000859a    000006d8     
+                  0000859a    00000334     main.obj (.text:_isr:ISR_player_switch_pressed)
+                  000088ce    00000200     main.obj (.text:_isr:ISR_TB2_CCR0)
+                  00008ace    000000ea     main.obj (.text:_isr:ISR_reset_switch_pressed)
+                  00008bb8    00000044     main.obj (.text:_isr:ISR_TB1_CCR0)
+                  00008bfc    00000030     main.obj (.text:_isr:ISR_TB2_CCR)
+                  00008c2c    00000020     rts430x_lc_sd_eabi.lib : boot.c.obj (.text:_isr:_c_int00_noargs_mpu)
+                  00008c4c    0000000a     main.obj (.text:_isr:EncoderISR)
+                  00008c56    0000000a     main.obj (.text:_isr:ISR_TB0_CCR0)
+                  00008c60    0000000a     main.obj (.text:_isr:ISR_TB0_CCR1)
+                  00008c6a    00000008     rts430x_lc_sd_eabi.lib : isr_trap.asm.obj (.text:_isr:__TI_ISR_TRAP)
 
-.data      0    00002000    00000030     UNINITIALIZED
-                  00002000    00000030     main.obj (.data)
+.data      0    00002000    00000032     UNINITIALIZED
+                  00002000    00000032     main.obj (.data)
 
 .stack     0    00002f60    000000a0     UNINITIALIZED
                   00002f60    00000002     rts430x_lc_sd_eabi.lib : boot.c.obj (.stack)
@@ -254,9 +254,9 @@ MODULE SUMMARY
        Module                       code   ro data   rw data
        ------                       ----   -------   -------
     .\
-       main.obj                     2274   16        48     
+       main.obj                     2212   16        50     
     +--+----------------------------+------+---------+---------+
-       Total:                       2274   16        48     
+       Total:                       2212   16        50     
                                                             
     C:\ti\ccs1220\ccs\ccs_base\msp430\lib\FR2xx\FRWP_INIT_LIB_CCS_msp430_large_code_small_data.lib
        frwp_init.obj                60     0         0      
@@ -299,13 +299,13 @@ MODULE SUMMARY
        Stack:                       0      0         160    
        Linker Generated:            0      41        0      
     +--+----------------------------+------+---------+---------+
-       Grand Total:                 3206   91        208    
+       Grand Total:                 3144   91        210    
 
 
 LINKER GENERATED COPY TABLES
 
 __TI_cinit_table @ 00008022 records: 1, size/record: 8, table size: 8
-	.data: load addr=00008000, load size=00000019 bytes, run addr=00002000, run size=00000030 bytes, compression=lzss
+	.data: load addr=00008000, load size=00000019 bytes, run addr=00002000, run size=00000032 bytes, compression=lzss
 
 
 LINKER GENERATED HANDLER TABLE
@@ -397,7 +397,7 @@ address   name
 00000672  BAKMEM9                                
 00000673  BAKMEM9_H                              
 00000672  BAKMEM9_L                              
-0000858c  C$$EXIT                                
+0000858e  C$$EXIT                                
 000002ee  CAPTIOCTL                              
 000002ef  CAPTIOCTL_H                            
 000002ee  CAPTIOCTL_L                            
@@ -476,13 +476,13 @@ address   name
 00000190  CSCTL8                                 
 00000191  CSCTL8_H                               
 00000190  CSCTL8_L                               
-0000200c  ControlMode                            
-0000201c  Duty                                   
-00002020  DutyPI                                 
-0000201a  EncoderCount                           
-00008c8a  EncoderISR                             
-00002024  Error                                  
-00002028  ErrorSum                               
+0000200e  ControlMode                            
+0000201e  Duty                                   
+00002022  DutyPI                                 
+0000201c  EncoderCount                           
+00008c4c  EncoderISR                             
+00002026  Error                                  
+0000202a  ErrorSum                               
 000001a0  FRCTL0                                 
 000001a1  FRCTL0_H                               
 000001a0  FRCTL0_L                               
@@ -510,15 +510,15 @@ address   name
 000006c0  ICCSC                                  
 000006c1  ICCSC_H                                
 000006c0  ICCSC_L                                
-00008c94  ISR_TB0_CCR0                           
-00008c9e  ISR_TB0_CCR1                           
-00008bf6  ISR_TB1_CCR0                           
-00008c3a  ISR_TB2_CCR                            
-000088cc  ISR_TB2_CCR0                           
-00008598  ISR_player_switch_pressed              
-00008ac0  ISR_reset_switch_pressed               
-00002016  Ki                                     
-00002012  Kp                                     
+00008c56  ISR_TB0_CCR0                           
+00008c60  ISR_TB0_CCR1                           
+00008bb8  ISR_TB1_CCR0                           
+00008bfc  ISR_TB2_CCR                            
+000088ce  ISR_TB2_CCR0                           
+0000859a  ISR_player_switch_pressed              
+00008ace  ISR_reset_switch_pressed               
+00002018  Ki                                     
+00002014  Kp                                     
 000004c4  MAC                                    
 000004da  MAC32H                                 
 000004db  MAC32H_H                               
@@ -921,8 +921,8 @@ address   name
 0000015a  SYSUNIV                                
 0000015b  SYSUNIV_H                              
 0000015a  SYSUNIV_L                              
-0000200e  SpeedCmd                               
-0000202c  SpeedMeas                              
+00002010  SpeedCmd                               
+0000202e  SpeedMeas                              
 00000392  TB0CCR0                                
 00000393  TB0CCR0_H                              
 00000392  TB0CCR0_L                              
@@ -1251,10 +1251,10 @@ address   name
 0000802a  __TI_CINIT_Warm                        
 0000801a  __TI_Handler_Table_Base                
 00008022  __TI_Handler_Table_Limit               
-00008ca8  __TI_ISR_TRAP                          
+00008c6a  __TI_ISR_TRAP                          
 000081d0  __TI_auto_init_nobinit_nopinit_hold_wdt
 0000802a  __TI_decompress_lzss                   
-000084a2  __TI_decompress_none                   
+000084a4  __TI_decompress_none                   
 0000ffce  __TI_int22                             
 0000ffd0  __TI_int23                             
 0000ffd2  __TI_int24                             
@@ -1283,30 +1283,30 @@ ffffffff  __TI_pprof_out_hndl
 ffffffff  __TI_prof_data_size                    
 ffffffff  __TI_prof_data_start                   
 ffffffff  __c_args__                             
-00008426  __memcpy_far                           
+00008428  __memcpy_far                           
 00000001  __mpu_enable                           
-00008466  __mpu_init                             
+00008468  __mpu_init                             
 0000823a  __mspabi_fixfi                         
-00008516  __mspabi_fltif                         
+00008518  __mspabi_fltif                         
 00008118  __mspabi_mpyf                          
-00008582  __mspabi_slli                          
-00008c6a  _c_int00_noargs_mpu                    
+00008584  __mspabi_slli                          
+00008c2c  _c_int00_noargs_mpu                    
 0000fffe  _reset_vector                          
 00002f60  _stack                                 
-00008596  _system_post_cinit                     
-00008592  _system_pre_init                       
-0000858c  abort                                  
+00008598  _system_post_cinit                     
+00008594  _system_pre_init                       
+0000858e  abort                                  
 00008000  fram_rw_start                          
 00008000  fram_rx_start                          
 0000200a  game_end                               
 00000001  info_fram_protection                   
-000084de  init_PWM                               
-000083ca  init_analogue_sensor                   
-0000836a  init_board_pins                        
-00008578  init_encoder                           
-00008308  init_player_switch                     
+000084e0  init_PWM                               
+000083cc  init_analogue_sensor                   
+00008308  init_board_pins                        
+0000857a  init_encoder                           
+0000836a  init_player_switch                     
 000082a2  init_timer                             
-0000854c  main                                   
+0000854e  main                                   
 00002008  on_led                                 
 00002002  player1_turn_end                       
 00002004  player2_turn_end                       
@@ -1314,6 +1314,7 @@ ffffffff  __c_args__
 00002000  running_status                         
 00000000  start_protection_offset_address        
 00002006  whoseturn                              
+0000200c  z                                      
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -2237,16 +2238,17 @@ address   name
 00002006  whoseturn                              
 00002008  on_led                                 
 0000200a  game_end                               
-0000200c  ControlMode                            
-0000200e  SpeedCmd                               
-00002012  Kp                                     
-00002016  Ki                                     
-0000201a  EncoderCount                           
-0000201c  Duty                                   
-00002020  DutyPI                                 
-00002024  Error                                  
-00002028  ErrorSum                               
-0000202c  SpeedMeas                              
+0000200c  z                                      
+0000200e  ControlMode                            
+00002010  SpeedCmd                               
+00002014  Kp                                     
+00002018  Ki                                     
+0000201c  EncoderCount                           
+0000201e  Duty                                   
+00002022  DutyPI                                 
+00002026  Error                                  
+0000202a  ErrorSum                               
+0000202e  SpeedMeas                              
 00002f60  _stack                                 
 00003000  __STACK_END                            
 00008000  fram_rw_start                          
@@ -2261,31 +2263,31 @@ address   name
 000081d0  __TI_auto_init_nobinit_nopinit_hold_wdt
 0000823a  __mspabi_fixfi                         
 000082a2  init_timer                             
-00008308  init_player_switch                     
-0000836a  init_board_pins                        
-000083ca  init_analogue_sensor                   
-00008426  __memcpy_far                           
-00008466  __mpu_init                             
-000084a2  __TI_decompress_none                   
-000084de  init_PWM                               
-00008516  __mspabi_fltif                         
-0000854c  main                                   
-00008578  init_encoder                           
-00008582  __mspabi_slli                          
-0000858c  C$$EXIT                                
-0000858c  abort                                  
-00008592  _system_pre_init                       
-00008596  _system_post_cinit                     
-00008598  ISR_player_switch_pressed              
-000088cc  ISR_TB2_CCR0                           
-00008ac0  ISR_reset_switch_pressed               
-00008bf6  ISR_TB1_CCR0                           
-00008c3a  ISR_TB2_CCR                            
-00008c6a  _c_int00_noargs_mpu                    
-00008c8a  EncoderISR                             
-00008c94  ISR_TB0_CCR0                           
-00008c9e  ISR_TB0_CCR1                           
-00008ca8  __TI_ISR_TRAP                          
+00008308  init_board_pins                        
+0000836a  init_player_switch                     
+000083cc  init_analogue_sensor                   
+00008428  __memcpy_far                           
+00008468  __mpu_init                             
+000084a4  __TI_decompress_none                   
+000084e0  init_PWM                               
+00008518  __mspabi_fltif                         
+0000854e  main                                   
+0000857a  init_encoder                           
+00008584  __mspabi_slli                          
+0000858e  C$$EXIT                                
+0000858e  abort                                  
+00008594  _system_pre_init                       
+00008598  _system_post_cinit                     
+0000859a  ISR_player_switch_pressed              
+000088ce  ISR_TB2_CCR0                           
+00008ace  ISR_reset_switch_pressed               
+00008bb8  ISR_TB1_CCR0                           
+00008bfc  ISR_TB2_CCR                            
+00008c2c  _c_int00_noargs_mpu                    
+00008c4c  EncoderISR                             
+00008c56  ISR_TB0_CCR0                           
+00008c60  ISR_TB0_CCR1                           
+00008c6a  __TI_ISR_TRAP                          
 0000ffce  __TI_int22                             
 0000ffd0  __TI_int23                             
 0000ffd2  __TI_int24                             
@@ -2316,4 +2318,4 @@ ffffffff  __TI_prof_data_size
 ffffffff  __TI_prof_data_start                   
 ffffffff  __c_args__                             
 
-[995 symbols]
+[996 symbols]

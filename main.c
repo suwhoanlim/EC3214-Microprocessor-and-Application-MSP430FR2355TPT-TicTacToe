@@ -11,6 +11,7 @@ int player2_turn_end = 0;
 int whoseturn = 0; // 1 for p2's turn, 0 for p1's turn
 int on_led = 0;
 int game_end = 0;
+int z = 0;
 
 //Some below are never used.
 //----------- Parameters -----------//
@@ -31,7 +32,7 @@ float SpeedMeas = 0; //unit: RPM
 
 
 /*
- * functions
+ * functionsf
  */
 void init_player_switch(); // init player switches
 void init_board_pins(); // init tictactoe led pins
@@ -96,15 +97,15 @@ void init_player_switch() {
      */
     P4DIR &= ~BIT6; // Configure as input
     P4DIR &= ~BIT7;
-    P4DIR &= ~BIT1; // for reset
+    P2DIR &= ~BIT3; // for reset
 
     P4REN |= BIT6; // enable pull up/down
     P4REN |= BIT7;
-    P4REN |= BIT1; // for reset
+    P2REN |= BIT3; // for reset
 
     P4OUT &= ~BIT6; // enable pull down, 0 when nothing is pressed, 1 when pressed.
     P4OUT &= ~BIT7;
-    P4OUT &= ~BIT1; // for reset
+    P2OUT &= ~BIT3; // for reset
 
     /*
      * Interrupt inits
@@ -119,7 +120,7 @@ void init_player_switch() {
 
     P4IE |= BIT6; // Enable port IRQ
     P4IE |= BIT7;
-    P4IE |= BIT1;
+    P2IE |= BIT3;
 
 }
 void init_board_pins(){
@@ -148,7 +149,7 @@ void init_board_pins(){
     P3DIR |= BIT1;
 
     P4DIR |= BIT5; // player1 scoreboard
-    P5DIR |= BIT3; // Player2 scoreboard
+    P5DIR |= BIT4; // Player2 scoreboard
 }
 
 void init_analogue_sensor(){
@@ -384,6 +385,7 @@ __interrupt void ISR_reset_switch_pressed() {
     * - halt timer by mc = 0, clear timer TBCLR & &T0BCLR
     * - turn off the leds in tictactoe board, clears the led for whose turn
 */
+    z = z+1;
     running_status = 0;
     TB2CTL |= MC__STOP; // stop timer
     TB2CTL |= TBCLR; // clear timer and dividers
@@ -421,6 +423,7 @@ __interrupt void ISR_reset_switch_pressed() {
     }
     game_end = 0;
     i = 0xFFFF;
+    /*
     for(i=0xFFFF;i > 0; i--) {} // delay to display result
 
     for(i=0xFFFF;i > 0; i--) {} // delay to display result
@@ -428,6 +431,7 @@ __interrupt void ISR_reset_switch_pressed() {
     for(i=0xFFFF;i > 0; i--) {} // delay to display result
 
     for(i=0xFFFF;i > 0; i--) {} // delay to display result
+    */
     P4OUT &= ~BIT5;
     P5OUT &= ~BIT4;
 
@@ -507,7 +511,8 @@ __interrupt void ISR_TB2_CCR0(void) {
     else { // move to next turn
         P5OUT ^= BIT4;
         P4OUT ^= BIT5;
-        whoseturn ^= 1;
+        if(whoseturn == 0 ) whoseturn = 1;
+        else whoseturn = 1;
     }
 
     //set reset interrupt
