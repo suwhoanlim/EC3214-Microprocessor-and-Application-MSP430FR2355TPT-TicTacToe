@@ -12,6 +12,9 @@ int whoseturn = 0; // 1 for p2's turn, 0 for p1's turn
 int on_led = 0;
 int game_end = 0;
 int z = 0;
+int p1int = 0;
+int p2int = 0;
+int tb2int = 0;
 
 //Some below are never used.
 //----------- Parameters -----------//
@@ -180,9 +183,6 @@ void init_analogue_sensor(){
 
     //ADCMCTL0 |= ADCINCH_2; // ADC input channel = A2(P1.2)
 }
-void init_dc_motor(){
-    // implement later
-}
 
 void init_encoder(){
     P5DIR &= ~BIT0;             // Configure P5.0(Encoder) as input
@@ -244,6 +244,7 @@ __interrupt void ISR_player_switch_pressed() {
 
     if(P4IFG & BIT6) { // switch pressed by player 1
         if(running_status == 0) {
+            p1int -= 10;
             running_status = 1;
             /* TODO
              * implement starting timer code here
@@ -308,6 +309,7 @@ __interrupt void ISR_player_switch_pressed() {
         player2_turn_end = 0;
         P4IFG &= ~BIT6; // reset flag
         on_led++;
+        p1int ++;
     }
     else if(P4IFG & BIT7) { // interrupt by plyer2
         if(running_status == 0) {
@@ -327,6 +329,7 @@ __interrupt void ISR_player_switch_pressed() {
             P5OUT |= BIT4; // turn on scoreboard
             P4IFG &= ~BIT7; // reset flag
             whoseturn = 1;
+            p2int -= 10;
             return;
         }
         ADCMCTL0 |= ADCINCH_6; // ADC input channel = A6(P1.6)
@@ -373,9 +376,9 @@ __interrupt void ISR_player_switch_pressed() {
         }
         player2_turn_end = 1;
         player1_turn_end = 0;
-        z = -1;
         P4IFG &= ~BIT7; // reset flag
         on_led++;
+        p2int ++;
     }
 }
 
@@ -386,7 +389,7 @@ __interrupt void ISR_reset_switch_pressed() {
     * - halt timer by mc = 0, clear timer TBCLR & &T0BCLR
     * - turn off the leds in tictactoe board, clears the led for whose turn
 */
-    z = z+1;
+
     running_status = 0;
     TB2CTL |= MC__STOP; // stop timer
     TB2CTL |= TBCLR; // clear timer and dividers
@@ -445,10 +448,12 @@ __interrupt void ISR_reset_switch_pressed() {
     P4IFG &= ~BIT6;
     P4IFG &= ~BIT7;
     P2IFG &= ~BIT3;
+    z ++;
 }
 
 #pragma vector = TIMER2_B0_VECTOR   //TB2CCR0
 __interrupt void ISR_TB2_CCR0(void) {
+    tb2int += 10;
     /*
      * TODO
      * implement determine_winner here
@@ -558,6 +563,7 @@ __interrupt void ISR_TB1_CCR0(void) {
 #pragma vector = TIMER2_B1_VECTOR   //TB2CCR1
 __interrupt void ISR_TB2_CCR(void)
 {
+    tb2int ++;
     if (TB2CCTL1 & CCIFG){
         //SpeedCmd = 60;
         Duty = 0.4;

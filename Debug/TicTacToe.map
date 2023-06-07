@@ -1,10 +1,10 @@
 ******************************************************************************
                   MSP430 Linker PC v21.6.1                     
 ******************************************************************************
->> Linked Wed Jun  7 17:15:33 2023
+>> Linked Wed Jun  7 17:30:15 2023
 
 OUTPUT FILE NAME:   <TicTacToe.out>
-ENTRY POINT SYMBOL: "_c_int00_noargs_mpu"  address: 00008c30
+ENTRY POINT SYMBOL: "_c_int00_noargs_mpu"  address: 00008c4a
 
 
 MEMORY CONFIGURATION
@@ -16,8 +16,8 @@ MEMORY CONFIGURATION
   INFO                  00001800   00000200  00000000  00000200  RWIX
   TLVMEM                00001a00   00000200  00000000  00000200  RWIX
   BOOTCODE              00001c00   00000400  00000000  00000400  RWIX
-  RAM                   00002000   00001000  000000d2  00000f2e  RWIX
-  FRAM                  00008000   00007f80  00000c76  0000730a  RWIX
+  RAM                   00002000   00001000  000000d8  00000f28  RWIX
+  FRAM                  00008000   00007f80  00000c90  000072f0  RWIX
   JTAGSIGNATURE         0000ff80   00000004  00000004  00000000  RWIX  ffff 
   BSLSIGNATURE          0000ff84   00000004  00000004  00000000  RWIX  ffff 
   BSLCONFIGURATIONSIGNA 0000ff88   00000002  00000002  00000000  RWIX  ffff 
@@ -87,8 +87,7 @@ section   page    origin      length       input sections
 .sysmem    0    00008000    00000000     UNINITIALIZED
 
 .cinit     0    00008000    0000002a     
-                  00008000    00000019     (.cinit..data.load) [load image, compression = lzss]
-                  00008019    00000001     --HOLE-- [fill = 0]
+                  00008000    0000001a     (.cinit..data.load) [load image, compression = lzss]
                   0000801a    00000008     (__TI_handler_table)
                   00008022    00000008     (__TI_cinit_table)
 
@@ -129,20 +128,20 @@ section   page    origin      length       input sections
                   00008598    00000002                            : startup.c.obj (.text:_system_post_cinit)
 
 .text:_isr 
-*          0    0000859a    000006dc     
-                  0000859a    00000338     main.obj (.text:_isr:ISR_player_switch_pressed)
-                  000088d2    00000200     main.obj (.text:_isr:ISR_TB2_CCR0)
-                  00008ad2    000000ea     main.obj (.text:_isr:ISR_reset_switch_pressed)
-                  00008bbc    00000044     main.obj (.text:_isr:ISR_TB1_CCR0)
-                  00008c00    00000030     main.obj (.text:_isr:ISR_TB2_CCR)
-                  00008c30    00000020     rts430x_lc_sd_eabi.lib : boot.c.obj (.text:_isr:_c_int00_noargs_mpu)
-                  00008c50    0000000a     main.obj (.text:_isr:EncoderISR)
-                  00008c5a    0000000a     main.obj (.text:_isr:ISR_TB0_CCR0)
-                  00008c64    0000000a     main.obj (.text:_isr:ISR_TB0_CCR1)
-                  00008c6e    00000008     rts430x_lc_sd_eabi.lib : isr_trap.asm.obj (.text:_isr:__TI_ISR_TRAP)
+*          0    0000859a    000006f6     
+                  0000859a    00000348     main.obj (.text:_isr:ISR_player_switch_pressed)
+                  000088e2    00000206     main.obj (.text:_isr:ISR_TB2_CCR0)
+                  00008ae8    000000ea     main.obj (.text:_isr:ISR_reset_switch_pressed)
+                  00008bd2    00000044     main.obj (.text:_isr:ISR_TB1_CCR0)
+                  00008c16    00000034     main.obj (.text:_isr:ISR_TB2_CCR)
+                  00008c4a    00000020     rts430x_lc_sd_eabi.lib : boot.c.obj (.text:_isr:_c_int00_noargs_mpu)
+                  00008c6a    0000000a     main.obj (.text:_isr:EncoderISR)
+                  00008c74    0000000a     main.obj (.text:_isr:ISR_TB0_CCR0)
+                  00008c7e    0000000a     main.obj (.text:_isr:ISR_TB0_CCR1)
+                  00008c88    00000008     rts430x_lc_sd_eabi.lib : isr_trap.asm.obj (.text:_isr:__TI_ISR_TRAP)
 
-.data      0    00002000    00000032     UNINITIALIZED
-                  00002000    00000032     main.obj (.data)
+.data      0    00002000    00000038     UNINITIALIZED
+                  00002000    00000038     main.obj (.data)
 
 .stack     0    00002f60    000000a0     UNINITIALIZED
                   00002f60    00000002     rts430x_lc_sd_eabi.lib : boot.c.obj (.stack)
@@ -254,9 +253,9 @@ MODULE SUMMARY
        Module                       code   ro data   rw data
        ------                       ----   -------   -------
     .\
-       main.obj                     2216   16        50     
+       main.obj                     2242   16        56     
     +--+----------------------------+------+---------+---------+
-       Total:                       2216   16        50     
+       Total:                       2242   16        56     
                                                             
     C:\ti\ccs1220\ccs\ccs_base\msp430\lib\FR2xx\FRWP_INIT_LIB_CCS_msp430_large_code_small_data.lib
        frwp_init.obj                60     0         0      
@@ -297,15 +296,15 @@ MODULE SUMMARY
        Total:                       872    34        0      
                                                             
        Stack:                       0      0         160    
-       Linker Generated:            0      41        0      
+       Linker Generated:            0      42        0      
     +--+----------------------------+------+---------+---------+
-       Grand Total:                 3148   91        210    
+       Grand Total:                 3174   92        216    
 
 
 LINKER GENERATED COPY TABLES
 
 __TI_cinit_table @ 00008022 records: 1, size/record: 8, table size: 8
-	.data: load addr=00008000, load size=00000019 bytes, run addr=00002000, run size=00000032 bytes, compression=lzss
+	.data: load addr=00008000, load size=0000001a bytes, run addr=00002000, run size=00000038 bytes, compression=lzss
 
 
 LINKER GENERATED HANDLER TABLE
@@ -476,13 +475,13 @@ address   name
 00000190  CSCTL8                                 
 00000191  CSCTL8_H                               
 00000190  CSCTL8_L                               
-0000200e  ControlMode                            
-0000201e  Duty                                   
-00002022  DutyPI                                 
-0000201c  EncoderCount                           
-00008c50  EncoderISR                             
-00002026  Error                                  
-0000202a  ErrorSum                               
+00002014  ControlMode                            
+00002024  Duty                                   
+00002028  DutyPI                                 
+00002022  EncoderCount                           
+00008c6a  EncoderISR                             
+0000202c  Error                                  
+00002030  ErrorSum                               
 000001a0  FRCTL0                                 
 000001a1  FRCTL0_H                               
 000001a0  FRCTL0_L                               
@@ -510,15 +509,15 @@ address   name
 000006c0  ICCSC                                  
 000006c1  ICCSC_H                                
 000006c0  ICCSC_L                                
-00008c5a  ISR_TB0_CCR0                           
-00008c64  ISR_TB0_CCR1                           
-00008bbc  ISR_TB1_CCR0                           
-00008c00  ISR_TB2_CCR                            
-000088d2  ISR_TB2_CCR0                           
+00008c74  ISR_TB0_CCR0                           
+00008c7e  ISR_TB0_CCR1                           
+00008bd2  ISR_TB1_CCR0                           
+00008c16  ISR_TB2_CCR                            
+000088e2  ISR_TB2_CCR0                           
 0000859a  ISR_player_switch_pressed              
-00008ad2  ISR_reset_switch_pressed               
-00002018  Ki                                     
-00002014  Kp                                     
+00008ae8  ISR_reset_switch_pressed               
+0000201e  Ki                                     
+0000201a  Kp                                     
 000004c4  MAC                                    
 000004da  MAC32H                                 
 000004db  MAC32H_H                               
@@ -921,8 +920,8 @@ address   name
 0000015a  SYSUNIV                                
 0000015b  SYSUNIV_H                              
 0000015a  SYSUNIV_L                              
-00002010  SpeedCmd                               
-0000202e  SpeedMeas                              
+00002016  SpeedCmd                               
+00002034  SpeedMeas                              
 00000392  TB0CCR0                                
 00000393  TB0CCR0_H                              
 00000392  TB0CCR0_L                              
@@ -1251,7 +1250,7 @@ address   name
 0000802a  __TI_CINIT_Warm                        
 0000801a  __TI_Handler_Table_Base                
 00008022  __TI_Handler_Table_Limit               
-00008c6e  __TI_ISR_TRAP                          
+00008c88  __TI_ISR_TRAP                          
 000081d0  __TI_auto_init_nobinit_nopinit_hold_wdt
 0000802a  __TI_decompress_lzss                   
 000084a4  __TI_decompress_none                   
@@ -1290,7 +1289,7 @@ ffffffff  __c_args__
 00008518  __mspabi_fltif                         
 00008118  __mspabi_mpyf                          
 00008584  __mspabi_slli                          
-00008c30  _c_int00_noargs_mpu                    
+00008c4a  _c_int00_noargs_mpu                    
 0000fffe  _reset_vector                          
 00002f60  _stack                                 
 00008598  _system_post_cinit                     
@@ -1308,11 +1307,14 @@ ffffffff  __c_args__
 000082a2  init_timer                             
 0000854e  main                                   
 00002008  on_led                                 
+0000200e  p1int                                  
+00002010  p2int                                  
 00002002  player1_turn_end                       
 00002004  player2_turn_end                       
 00000001  program_fram_protection                
 00002000  running_status                         
 00000000  start_protection_offset_address        
+00002012  tb2int                                 
 00002006  whoseturn                              
 0000200c  z                                      
 
@@ -2239,16 +2241,19 @@ address   name
 00002008  on_led                                 
 0000200a  game_end                               
 0000200c  z                                      
-0000200e  ControlMode                            
-00002010  SpeedCmd                               
-00002014  Kp                                     
-00002018  Ki                                     
-0000201c  EncoderCount                           
-0000201e  Duty                                   
-00002022  DutyPI                                 
-00002026  Error                                  
-0000202a  ErrorSum                               
-0000202e  SpeedMeas                              
+0000200e  p1int                                  
+00002010  p2int                                  
+00002012  tb2int                                 
+00002014  ControlMode                            
+00002016  SpeedCmd                               
+0000201a  Kp                                     
+0000201e  Ki                                     
+00002022  EncoderCount                           
+00002024  Duty                                   
+00002028  DutyPI                                 
+0000202c  Error                                  
+00002030  ErrorSum                               
+00002034  SpeedMeas                              
 00002f60  _stack                                 
 00003000  __STACK_END                            
 00008000  fram_rw_start                          
@@ -2279,15 +2284,15 @@ address   name
 00008594  _system_pre_init                       
 00008598  _system_post_cinit                     
 0000859a  ISR_player_switch_pressed              
-000088d2  ISR_TB2_CCR0                           
-00008ad2  ISR_reset_switch_pressed               
-00008bbc  ISR_TB1_CCR0                           
-00008c00  ISR_TB2_CCR                            
-00008c30  _c_int00_noargs_mpu                    
-00008c50  EncoderISR                             
-00008c5a  ISR_TB0_CCR0                           
-00008c64  ISR_TB0_CCR1                           
-00008c6e  __TI_ISR_TRAP                          
+000088e2  ISR_TB2_CCR0                           
+00008ae8  ISR_reset_switch_pressed               
+00008bd2  ISR_TB1_CCR0                           
+00008c16  ISR_TB2_CCR                            
+00008c4a  _c_int00_noargs_mpu                    
+00008c6a  EncoderISR                             
+00008c74  ISR_TB0_CCR0                           
+00008c7e  ISR_TB0_CCR1                           
+00008c88  __TI_ISR_TRAP                          
 0000ffce  __TI_int22                             
 0000ffd0  __TI_int23                             
 0000ffd2  __TI_int24                             
@@ -2318,4 +2323,4 @@ ffffffff  __TI_prof_data_size
 ffffffff  __TI_prof_data_start                   
 ffffffff  __c_args__                             
 
-[996 symbols]
+[999 symbols]
