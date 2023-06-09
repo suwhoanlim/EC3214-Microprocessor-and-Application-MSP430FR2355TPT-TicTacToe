@@ -42,14 +42,11 @@ int main(void)
 	init_encoder();
 	init_timer();
 
-	P4SEL1 &= ~BIT1;
-	P4SEL0 &= ~BIT1;
-
     __enable_interrupt();
     PM5CTL0 &= ~LOCKLPM5;
 
     //test_led_on();
-    test_led_off();
+    test_led_off(); // turn all the LED off on start
 
 
 	while(1) {
@@ -75,8 +72,6 @@ int main(void)
          * - For player1, switch will toggle the LED with the corresponding ADC value.
          * - For player2, once all three LED are lit, next press will turn every LED off no matter the ADC value.
          * - For reset button, it will clear all the LED and turn them off.
-         *
-         * - (Yet to come)
          * - For DC motor, every time TB2 CCR0 is hit, each player's one LED will be turned off.
          *
          * Now, please enjoy!
@@ -139,6 +134,8 @@ __interrupt void ISR_player1_switch_pressed() { // P6.0, 6.1, 6.2
         P6OUT ^= BIT2;
     }
     /*
+     * Code discarded. It either doesn't work or is too complicated.
+     *
     if(ADC_value < 1300) {
         if(P6OUT & BIT0 != 0) { // check if LED is on
             P6OUT &= ~BIT0; // if LED is on, turn it off
@@ -423,10 +420,10 @@ void init_pwm(){
 }
 
 void init_encoder(void){
-    P5DIR &= ~BIT0;             // Configure P.1.1(Encoder) as input
+    P5DIR &= ~BIT0;             // Configure P5.0(Encoder) as input
     P5IES &= ~BIT0;             // Configure IRQ Sensitivity H-to-L
 
-    P5IFG &= ~BIT0;             // Clear P1.1(Encoder) IRQ Flag 5.0
+    P5IFG &= ~BIT0;             // Clear P5.0(Encoder) IRQ Flag 5.0
     P5IE |= BIT0;
 }
 
