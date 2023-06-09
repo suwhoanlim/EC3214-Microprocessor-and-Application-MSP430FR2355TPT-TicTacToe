@@ -22,6 +22,7 @@ int r3 = 0;
 int ADC_value = 0;
 int test_b = 0;
 int test_r = 0;
+int test_it = 0;
 
 int EncoderCount = 0;
 float Duty = 0.2;
@@ -41,6 +42,8 @@ int main(void)
 	init_encoder();
 	init_timer();
 
+	P4SEL1 &= ~BIT1;
+	P4SEL0 &= ~BIT1;
 
     __enable_interrupt();
     PM5CTL0 &= ~LOCKLPM5;
@@ -92,7 +95,6 @@ __interrupt void ISR_turn_LED_off() { // P6.0, 6.1, 6.2 // P2.0, 2.2, 4.0
     /*
      * Red LED
      */
-    test_b ++;
 
     P6OUT &= ~BIT0;
     P6OUT &= ~BIT1;
@@ -104,6 +106,10 @@ __interrupt void ISR_turn_LED_off() { // P6.0, 6.1, 6.2 // P2.0, 2.2, 4.0
     P2OUT &= ~BIT0;
     P2OUT &= ~BIT2;
     P4OUT &= ~BIT0;
+
+    test_it++;
+
+    P4IFG &= ~BIT1;
 }
 
 #pragma vector = PORT3_VECTOR
