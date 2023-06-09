@@ -110,6 +110,8 @@ __interrupt void ISR_turn_LED_off() { // P6.0, 6.1, 6.2 // P2.0, 2.2, 4.0
 __interrupt void ISR_player1_switch_pressed() { // P6.0, 6.1, 6.2
     //int ADC_value;
 
+    test_r++;
+
     ADCCTL0 |= ADCENC | ADCSC; // start reading ADC value
     while((ADCIFG & ADCIFG0) == 0); // wait untill conversion is finished
 
@@ -121,7 +123,7 @@ __interrupt void ISR_player1_switch_pressed() { // P6.0, 6.1, 6.2
      * If LED is off, turn it on
      * If LED is on, turn it off
      */
-    if(ADC_value < 1300) {
+    if(ADC_value < 1300) { // MAX ADC value = 4095, 4095 / 3 == 1300
         P6OUT ^=BIT0; // if LED is on, turn it off
     }
     else if ((1300 <= ADC_value) && (ADC_value < 2600)){
