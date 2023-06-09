@@ -253,6 +253,22 @@ __interrupt void ISR_TB1_CCR0(void) {
 #pragma vector = TIMER2_B0_VECTOR   //TB2CCR0
 __interrupt void ISR_TB2_CCR0(void)
 {
+
+    /*
+     * Red LED
+     */
+
+    P6OUT &= ~BIT0;
+    P6OUT &= ~BIT1;
+    P6OUT &= ~BIT2;
+
+    /*
+     * Blue LED
+     */
+    P2OUT &= ~BIT0;
+    P2OUT &= ~BIT2;
+    P4OUT &= ~BIT0;
+
     //SpeedCmd = 30;
     Duty = 0.3;
     TB2CCTL0 &= ~CCIFG;
