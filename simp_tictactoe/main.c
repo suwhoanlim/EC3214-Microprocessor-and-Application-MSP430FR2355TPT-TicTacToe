@@ -72,7 +72,7 @@ int main(void)
          * - For player1, switch will toggle the LED with the corresponding ADC value.
          * - For player2, once all three LED are lit, next press will turn every LED off no matter the ADC value.
          * - For reset button, it will clear all the LED and turn them off.
-         * - For DC motor, every time TB2 CCR0 is hit, each player's one LED will be turned off.
+         * - For DC motor, every time TB2 CCR0 is hit, each player's LED will be turned off.
          *
          * Now, please enjoy!
          *
@@ -104,6 +104,8 @@ __interrupt void ISR_turn_LED_off() { // P6.0, 6.1, 6.2 // P2.0, 2.2, 4.0
 
     test_it++;
 
+    int i = 0;
+    for(i = 20000; i>0; i--) {} //delay for 'bout 0.2 sec
     P4IFG &= ~BIT1;
 }
 
@@ -161,6 +163,9 @@ __interrupt void ISR_player1_switch_pressed() { // P6.0, 6.1, 6.2
         }
     }
     */
+
+    int i = 0;
+    for(i = 20000; i>0; i--) {} //delay for 'bout 0.2 sec
     P3IFG &= ~BIT0;
 }
 
@@ -191,6 +196,9 @@ __interrupt void ISR_player2_switch_pressed() { // P2.0 2.2 4.0
                 b3 = 0;
 
                 P2IFG &= ~BIT5;
+
+                int i = 0;
+                for(i = 20000; i>0; i--) {} //delay for 'bout 0.2 sec
                 return;
             }
         }
@@ -217,7 +225,7 @@ __interrupt void ISR_player2_switch_pressed() { // P2.0 2.2 4.0
         b3 = 1;
     }
     int i = 0;
-    for(i = 0x0FFFF; i>0; i--) {} //delay
+    for(i = 20000; i>0; i--) {} //delay for 'bout 0.2sec
 
     P2IFG &= ~BIT5;
 }
